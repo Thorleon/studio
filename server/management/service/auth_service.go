@@ -95,6 +95,8 @@ func rejected(reason string) error { return fmt.Errorf("%w: %s", ErrLoginRejecte
 // user who no longer exists.
 var ErrUnauthenticated = errors.New("unauthenticated")
 
+var ErrForbidden = errors.New("forbidden")
+
 // Authenticate validates a session token and resolves the caller from the
 // current user row: identity and privileges, so a demotion or an email change
 // applies to live sessions. A deleted user is rejected.
@@ -179,6 +181,9 @@ func (s *AuthService) Exchange(ctx context.Context, code, verifier, nonce string
 	})
 	if errors.Is(err, repository.ErrMissingIdentity) {
 		return nil, "", fmt.Errorf("%w: %w", ErrLoginRejected, err)
+	}
+	if errors.Is(err, repository.ErrIdentityMismatch) {
+		return nil, "", fmt.Errorf("%w: %w", ErrForbidden, err)
 	}
 	if err != nil {
 		return nil, "", err
