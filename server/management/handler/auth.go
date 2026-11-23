@@ -84,9 +84,9 @@ func (h *AuthHandler) Callback(c *echo.Context) error {
 			return badRequest(c, "login failed")
 		}
 		if errors.Is(err, service.ErrForbidden) {
-			return forbidden(c, "account is linked to another identity")
+			return forbidden(c, service.PublicMessage(err))
 		}
-		return	 internal(c, "login failed")
+		return internal(c, "login failed")
 	}
 	session := h.cookie(h.sessionCookie, jwtStr) //nolint:gosec // Secure: see cookie()
 	// MaxAge, unlike Expires, doesn't depend on the browser's clock.
